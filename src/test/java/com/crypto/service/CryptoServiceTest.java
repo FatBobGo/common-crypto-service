@@ -139,6 +139,14 @@ class CryptoServiceTest {
         byte[] combinedData = HexUtil.hexToBytes(response.getEncryptedDataHex());
         ByteBuffer buffer = ByteBuffer.wrap(combinedData);
 
+        /**
+            [4 bytes: IV Length]
+            [12 bytes: IV]
+            [4 bytes: Encrypted Card Length]
+            [32 bytes: Encrypted Card Data (includes GCM tag automatically appended by cipher)]
+            [256 bytes: Encrypted AES Key (for 2048-bit RSA)]
+         */
+        
         // Extract IV
         int ivLength = buffer.getInt();
         byte[] iv = new byte[ivLength];

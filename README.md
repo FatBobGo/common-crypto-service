@@ -27,6 +27,26 @@ The encrypted output is a hexadecimal string containing:
 [IV_LENGTH (4 bytes)][IV (12 bytes)][ENCRYPTED_CARD_LENGTH (4 bytes)][ENCRYPTED_CARD][ENCRYPTED_AES_KEY]
 ```
 
+Detailed breakdown:
+```
+[4 bytes: IV Length]
+[12 bytes: IV]
+[4 bytes: Encrypted Card Length]
+[32 bytes: Encrypted Card Data (for standard 16-digit cards)]
+[256 bytes: Encrypted AES Key (for 2048-bit RSA)]
+```
+
+**Note:** When using AES-GCM, the `cipher.doFinal()` method automatically appends the 16-byte (128-bit) GCM authentication tag to the ciphertext. 
+
+For a **standard 16-digit card number**:
+- Plaintext: 16 bytes (16 ASCII digits)
+- Output from cipher: **32 bytes** (16 bytes ciphertext + 16 bytes GCM tag)
+
+For other card lengths (e.g., 15-digit Amex), the size will be: `card_length + 16` bytes.
+
+Total size: **~616 hex characters (308 bytes)** for 2048-bit RSA keys with 16-digit cards
+
+
 ## Technical Specifications
 
 ### Cryptographic Algorithms
@@ -36,6 +56,15 @@ The encrypted output is a hexadecimal string containing:
 - **IV Size**: 12 bytes (96 bits) for GCM mode
 - **GCM Tag**: 128 bits for authentication
 - **Provider**: Bouncy Castle
+
+
+|Component	|Algorithm	|Details|
+|---	|---	|---
+|**Card Encryption**	|AES/GCM/NoPadding	|256-bit key, authenticated encryption|
+|**Key Encryption**	|RSA/ECB/OAEPWithSHA-256AndMGF1Padding	|Explicit MGF1 as requested|
+|**IV Generation**	|SecureRandom	|12 bytes (96 bits) for GCM|
+|**GCM Tag**	|128 bits	|Provides authentication|
+|**Provider**	|Bouncy Castle	|Enhanced crypto support|
 
 ### Dependencies
 
@@ -189,6 +218,14 @@ Log levels:
 3. **Authenticated Encryption**: GCM mode provides both confidentiality and authenticity
 4. **No Key Reuse**: AES keys are never reused across encryptions
 5. **Secure Padding**: RSA uses OAEP with SHA-256 and MGF1 for robust padding
+
+## Best Practices Implemented
+- ✅ Modular design with clear separation of concerns
+- ✅ Comprehensive logging for audit trails
+- ✅ Extensive test coverage (37 tests)
+- ✅ JavaDoc documentation
+- ✅ Error handling with custom exceptions
+- ✅ Sensitive data masking in logs
 
 ## Project Structure
 

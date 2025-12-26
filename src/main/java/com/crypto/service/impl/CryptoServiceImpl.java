@@ -104,6 +104,10 @@ public class CryptoServiceImpl implements CryptoService {
 
     /**
      * Encrypts data using AES-GCM.
+     * 
+     * Note: In GCM mode, cipher.doFinal() automatically appends the
+     * authentication tag (16 bytes for 128-bit tag) to the ciphertext.
+     * The returned byte array contains: [ciphertext][GCM tag]
      */
     private byte[] encryptWithAES(String plaintext, byte[] aesKey, byte[] iv) throws CryptoException {
         try {
@@ -153,8 +157,12 @@ public class CryptoServiceImpl implements CryptoService {
     /**
      * Combines IV, encrypted card data, and encrypted AES key into a single byte
      * array.
+     * 
      * Format: [IV_LENGTH(4 bytes)][IV][ENCRYPTED_CARD_LENGTH(4
      * bytes)][ENCRYPTED_CARD][ENCRYPTED_AES_KEY]
+     * 
+     * Note: The encryptedCard parameter already includes the GCM authentication tag
+     * appended by cipher.doFinal() (16 bytes for 128-bit tag).
      */
     private byte[] combineData(byte[] iv, byte[] encryptedCard, byte[] encryptedAESKey) {
         ByteBuffer buffer = ByteBuffer.allocate(

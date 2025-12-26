@@ -106,7 +106,7 @@ import com.crypto.model.EncryptionRequest;
 import com.crypto.model.EncryptionResponse;
 import com.crypto.service.CryptoService;
 import com.crypto.service.impl.CryptoServiceImpl;
-import com.crypto.util.HexUtil;
+import java.util.HexFormat;
 
 // Initialize the service
 CryptoService cryptoService = new CryptoServiceImpl();
@@ -145,9 +145,10 @@ import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.ByteBuffer;
 import java.security.PrivateKey;
+import java.util.HexFormat;
 
 // Parse the encrypted data
-byte[] combinedData = HexUtil.hexToBytes(encryptedDataHex);
+byte[] combinedData = HexFormat.of().parseHex(encryptedDataHex);
 ByteBuffer buffer = ByteBuffer.wrap(combinedData);
 
 // Extract IV
@@ -189,17 +190,17 @@ mvn test
 ### Test Coverage
 
 The project includes:
-- **Unit Tests**: `HexUtilTest`, `CryptoServiceTest`
+- **Unit Tests**: `CryptoServiceTest`
 - **Integration Tests**: `IntegrationTest`
 
 Tests cover:
 - AES key generation and uniqueness
 - AES-GCM encryption/decryption
 - RSA-OAEP encryption with MGF1
-- Hex encoding/decoding
 - Complete end-to-end flow
 - Error handling and validation
 - Various card numbers and RSA key sizes
+- Hex encoding/decoding (via Java 17's `HexFormat`)
 
 ## Logging
 
@@ -245,8 +246,6 @@ common-crypto-service/
 │   │   │   │   ├── CryptoService.java
 │   │   │   │   └── impl/
 │   │   │   │       └── CryptoServiceImpl.java
-│   │   │   ├── util/
-│   │   │   │   └── HexUtil.java
 │   │   │   └── CryptoDemo.java
 │   │   └── resources/
 │   │       └── logback.xml
@@ -254,12 +253,12 @@ common-crypto-service/
 │       └── java/com/crypto/
 │           ├── integration/
 │           │   └── IntegrationTest.java
-│           ├── service/
-│           │   └── CryptoServiceTest.java
-│           └── util/
-│               └── HexUtilTest.java
+│           └── service/
+│               └── CryptoServiceTest.java
 └── pom.xml
 ```
+
+**Note:** This project uses Java 17's built-in `java.util.HexFormat` for hexadecimal encoding/decoding instead of a custom utility class.
 
 ## License
 

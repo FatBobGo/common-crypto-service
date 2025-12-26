@@ -4,7 +4,7 @@ import com.crypto.exception.CryptoException;
 import com.crypto.model.EncryptionRequest;
 import com.crypto.model.EncryptionResponse;
 import com.crypto.service.impl.CryptoServiceImpl;
-import com.crypto.util.HexUtil;
+import java.util.HexFormat;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -36,7 +36,7 @@ class CryptoServiceTest {
         KeyPairGenerator keyPairGen = KeyPairGenerator.getInstance("RSA");
         keyPairGen.initialize(2048);
         rsaKeyPair = keyPairGen.generateKeyPair();
-        publicKeyHex = HexUtil.bytesToHex(rsaKeyPair.getPublic().getEncoded());
+        publicKeyHex = HexFormat.of().withUpperCase().formatHex(rsaKeyPair.getPublic().getEncoded());
     }
 
     @Test
@@ -136,17 +136,18 @@ class CryptoServiceTest {
         assertTrue(response.isSuccess());
 
         // Decrypt and verify the complete flow
-        byte[] combinedData = HexUtil.hexToBytes(response.getEncryptedDataHex());
+        byte[] combinedData = HexFormat.of().parseHex(response.getEncryptedDataHex());
         ByteBuffer buffer = ByteBuffer.wrap(combinedData);
 
         /**
-            [4 bytes: IV Length]
-            [12 bytes: IV]
-            [4 bytes: Encrypted Card Length]
-            [32 bytes: Encrypted Card Data (includes GCM tag automatically appended by cipher)]
-            [256 bytes: Encrypted AES Key (for 2048-bit RSA)]
+         * [4 bytes: IV Length]
+         * [12 bytes: IV]
+         * [4 bytes: Encrypted Card Length]
+         * [32 bytes: Encrypted Card Data (includes GCM tag automatically appended by
+         * cipher)]
+         * [256 bytes: Encrypted AES Key (for 2048-bit RSA)]
          */
-        
+
         // Extract IV
         int ivLength = buffer.getInt();
         byte[] iv = new byte[ivLength];

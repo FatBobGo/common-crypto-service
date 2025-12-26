@@ -5,7 +5,6 @@ import com.crypto.exception.CryptoException;
 import com.crypto.model.EncryptionRequest;
 import com.crypto.model.EncryptionResponse;
 import com.crypto.service.CryptoService;
-import com.crypto.util.HexUtil;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,6 +21,7 @@ import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.security.Security;
 import java.security.spec.X509EncodedKeySpec;
+import java.util.HexFormat;
 
 /**
  * Implementation of the CryptoService interface.
@@ -31,6 +31,7 @@ import java.security.spec.X509EncodedKeySpec;
 public class CryptoServiceImpl implements CryptoService {
 
     private static final Logger logger = LoggerFactory.getLogger(CryptoServiceImpl.class);
+    private static final HexFormat HEX_FORMAT = HexFormat.of().withUpperCase();
     private final SecureRandom secureRandom;
 
     static {
@@ -70,7 +71,7 @@ public class CryptoServiceImpl implements CryptoService {
 
             // Step 4: Combine IV + encrypted card + encrypted AES key
             byte[] combinedData = combineData(iv, encryptedCard, encryptedAESKey);
-            String encryptedDataHex = HexUtil.bytesToHex(combinedData);
+            String encryptedDataHex = HEX_FORMAT.formatHex(combinedData);
 
             logger.info("Encryption completed successfully, output size: {} hex chars", encryptedDataHex.length());
             return EncryptionResponse.success(encryptedDataHex);
@@ -144,7 +145,7 @@ public class CryptoServiceImpl implements CryptoService {
      */
     private PublicKey parseRSAPublicKey(String publicKeyHex) throws CryptoException {
         try {
-            byte[] publicKeyBytes = HexUtil.hexToBytes(publicKeyHex);
+            byte[] publicKeyBytes = HEX_FORMAT.parseHex(publicKeyHex);
             X509EncodedKeySpec keySpec = new X509EncodedKeySpec(publicKeyBytes);
             KeyFactory keyFactory = KeyFactory.getInstance(CryptoConstants.RSA_ALGORITHM);
             return keyFactory.generatePublic(keySpec);

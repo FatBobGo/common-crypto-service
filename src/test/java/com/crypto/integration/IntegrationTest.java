@@ -4,7 +4,7 @@ import com.crypto.model.EncryptionRequest;
 import com.crypto.model.EncryptionResponse;
 import com.crypto.service.CryptoService;
 import com.crypto.service.impl.CryptoServiceImpl;
-import com.crypto.util.HexUtil;
+import java.util.HexFormat;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -33,7 +33,7 @@ class IntegrationTest {
         KeyPair consumerKeyPair = keyPairGen.generateKeyPair();
 
         // Consumer sends public key in hex format
-        String publicKeyHex = HexUtil.bytesToHex(consumerKeyPair.getPublic().getEncoded());
+        String publicKeyHex = HexFormat.of().withUpperCase().formatHex(consumerKeyPair.getPublic().getEncoded());
 
         // Backend receives request with public key and card number
         String cardNumber = "4532123456789012";
@@ -48,7 +48,7 @@ class IntegrationTest {
         assertNull(response.getErrorMessage());
 
         // Verify encrypted data is in hex format
-        assertDoesNotThrow(() -> HexUtil.hexToBytes(response.getEncryptedDataHex()));
+        assertDoesNotThrow(() -> HexFormat.of().parseHex(response.getEncryptedDataHex()));
 
         // Verify encrypted data has reasonable size
         // Should contain: IV (12 bytes) + encrypted card (~28 bytes with GCM tag) +
@@ -62,7 +62,7 @@ class IntegrationTest {
         KeyPairGenerator keyPairGen = KeyPairGenerator.getInstance("RSA");
         keyPairGen.initialize(2048);
         KeyPair keyPair = keyPairGen.generateKeyPair();
-        String publicKeyHex = HexUtil.bytesToHex(keyPair.getPublic().getEncoded());
+        String publicKeyHex = HexFormat.of().withUpperCase().formatHex(keyPair.getPublic().getEncoded());
 
         String[] cardNumbers = {
                 "4532123456789012",
@@ -89,7 +89,7 @@ class IntegrationTest {
             KeyPairGenerator keyPairGen = KeyPairGenerator.getInstance("RSA");
             keyPairGen.initialize(keySize);
             KeyPair keyPair = keyPairGen.generateKeyPair();
-            String publicKeyHex = HexUtil.bytesToHex(keyPair.getPublic().getEncoded());
+            String publicKeyHex = HexFormat.of().withUpperCase().formatHex(keyPair.getPublic().getEncoded());
 
             EncryptionRequest request = new EncryptionRequest(publicKeyHex, cardNumber);
             EncryptionResponse response = cryptoService.encryptCardNumber(request);

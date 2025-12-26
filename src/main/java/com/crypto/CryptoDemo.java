@@ -4,7 +4,7 @@ import com.crypto.model.EncryptionRequest;
 import com.crypto.model.EncryptionResponse;
 import com.crypto.service.CryptoService;
 import com.crypto.service.impl.CryptoServiceImpl;
-import com.crypto.util.HexUtil;
+import java.util.HexFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,7 +31,7 @@ public class CryptoDemo {
             PublicKey publicKey = keyPair.getPublic();
 
             // Convert public key to hex (as API consumer would send)
-            String publicKeyHex = HexUtil.bytesToHex(publicKey.getEncoded());
+            String publicKeyHex = HexFormat.of().withUpperCase().formatHex(publicKey.getEncoded());
             logger.info("RSA Public Key (hex): {}...", publicKeyHex.substring(0, 60));
 
             // Step 2: Create encryption request

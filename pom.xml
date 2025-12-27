@@ -142,7 +142,7 @@
         <configuration>
           <archive>
             <manifest>
-              <mainClass>com.crypto.commoncrypto.service.CryptoDemo</mainClass>
+              <mainClass>com.crypto.CryptoDemo</mainClass>
             </manifest>
           </archive>
         </configuration>
@@ -162,7 +162,7 @@
                   <configuration>
                       <transformers>
                           <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                              <mainClass>com.crypto.commoncrypto.service.CryptoDemo</mainClass>
+                              <mainClass>com.crypto.CryptoDemo</mainClass>
                           </transformer>
                       </transformers>
                       <finalName>${project.artifactId}-${project.version}-with-dependencies</finalName>

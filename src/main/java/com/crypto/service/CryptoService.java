@@ -11,12 +11,12 @@ public interface CryptoService {
 
     /**
      * Encrypts a card number using AES encryption, then encrypts the AES key using
-     * RSA.
+     * RSA public key.
      * 
      * Flow:
      * 1. Generate a random AES-256 key
      * 2. Encrypt the card number using AES-GCM
-     * 3. Encrypt the AES key using RSA with OAEP and MGF1 padding
+     * 3. Encrypt the AES key using RSA public key with OAEP and MGF1 padding
      * 4. Combine IV + encrypted card + encrypted AES key into hex format
      *
      * @param request the encryption request containing RSA public key and card

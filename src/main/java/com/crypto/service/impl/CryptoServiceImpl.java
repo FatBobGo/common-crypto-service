@@ -13,6 +13,8 @@ import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.GCMParameterSpec;
+import javax.crypto.spec.OAEPParameterSpec;
+import javax.crypto.spec.PSource;
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
@@ -20,6 +22,7 @@ import java.security.KeyFactory;
 import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.security.Security;
+import java.security.spec.MGF1ParameterSpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.HexFormat;
 
@@ -132,7 +135,20 @@ public class CryptoServiceImpl implements CryptoService {
     private byte[] encryptWithRSA(byte[] data, PublicKey publicKey) throws CryptoException {
         try {
             Cipher cipher = Cipher.getInstance(CryptoConstants.RSA_TRANSFORMATION, CryptoConstants.PROVIDER);
-            cipher.init(Cipher.ENCRYPT_MODE, publicKey);
+            
+            // Define the OAEP parameters with SHA-256 for both digests
+            // The constructor takes:
+            // - mdName (message digest algorithm name) -> "SHA-256"
+            // - mgfName (mask generation function algorithm name) -> "MGF1"
+            // - mgfSpec (parameters for the MGF) -> MGF1ParameterSpec.SHA256
+            // - pSrc (source of the encoding input P) -> PSource.PSpecified.DEFAULT
+            OAEPParameterSpec oaepParams = new OAEPParameterSpec(
+                    "SHA-256",
+                    "MGF1",
+                    MGF1ParameterSpec.SHA256,
+                    PSource.PSpecified.DEFAULT
+            );
+            cipher.init(Cipher.ENCRYPT_MODE, publicKey, oaepParams);
             return cipher.doFinal(data);
 
         } catch (Exception e) {
